@@ -19,4 +19,4 @@ requires:
   HTML::FormFu: 0
   NEXT: 0
   Scalar::Util: 0
-version: 0.01001
+version: 0.01002
