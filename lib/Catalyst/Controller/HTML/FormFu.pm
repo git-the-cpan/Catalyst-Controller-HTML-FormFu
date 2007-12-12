@@ -8,7 +8,7 @@ use HTML::FormFu;
 use Scalar::Util qw/ weaken /;
 use Carp qw/ croak /;
 
-our $VERSION = '0.01002';
+our $VERSION = '0.02000';
 $VERSION = eval $VERSION;  # see L<perlmodstyle>
 
 __PACKAGE__->mk_accessors(qw( _html_formfu_config ));
@@ -54,8 +54,14 @@ sub _setup {
     
     my %args = ( %defaults, %$parent_config, %$self_config );
     
-    $args{constructor}{render_class_args}{INCLUDE_PATH}
-        ||= [ $c->path_to('root','formfu') ];
+    my $local_path = $c->path_to('root','formfu');
+    
+    if ( !exists $args{constructor}{tt_args}
+        || !exists $args{constructor}{tt_args}{INCLUDE_PATH}
+        && -d $local_path )
+    {
+        $args{constructor}{tt_args}{INCLUDE_PATH} = [$local_path];
+    }
     
     $args{constructor}{query_type} ||= 'Catalyst';
     
@@ -81,7 +87,9 @@ sub _form {
                 plain_value => sub {
                     return if !defined $_;
                     s{__uri_for\((.+?)\)__}
-                     { $self->{c}->uri_for( split( '\s*,\s*', $1 ) ) }eg
+                     { $self->{c}->uri_for( split( '\s*,\s*', $1 ) ) }eg;
+                    s{__path_to\(\s*(.+?)\s*\)__}
+                     { $self->{c}->path_to( split( '\s*,\s*', $1 ) ) }eg;
                 }
             });
             
@@ -170,7 +178,9 @@ Catalyst::Controller::HTML::FormFu
         #
         # my $form = HTML::FormFu->new;
         #
-        # $c->stash->{form}   = $form;
+        # $form->query( $c->request );
+        # 
+        # $c->stash->{form} = $form;
     }
     
     sub bar : Local : FormConfig {
@@ -182,7 +192,9 @@ Catalyst::Controller::HTML::FormFu
         #
         # $form->load_config_file('root/forms/my/controller/bar.yml');
         #
-        # $c->stash->{form}   = $form;
+        # $form->process( $c->request );
+        #
+        # $c->stash->{form} = $form;
         #
         # so you only need to do the following...
         
@@ -202,7 +214,9 @@ Catalyst::Controller::HTML::FormFu
         #
         # $form->load_config_file('root/forms/my_config.yml');
         #
-        # $c->stash->{form}   = $form;
+        # $form->process( $c->request );
+        #
+        # $c->stash->{form} = $form;
         #
         # so you only need to do the following...
         
@@ -222,7 +236,9 @@ Catalyst::Controller::HTML::FormFu
         #
         # $form->populate( $c->load_form );
         #
-        # $c->stash->{form}   = $form;
+        # $form->process( $c->request );
+        #
+        # $c->stash->{form} = $form;
         #
         # so you only need to do the following...
         
@@ -254,7 +270,14 @@ This is useful when using the ConfigForm() or MethodForm() action attributes,
 to create a 2nd form which isn't populated using a config-file or method 
 return value.
 
-    my $form = $self->form;
+    sub foo : Local {
+        my ( $self, $c ) = @_;
+        
+        my $form = $self->form;
+    }
+
+Note that when using this method, the form's L<query|HTML::FormFu/query> 
+method is not populated with the Catalyst request object.
 
 =head1 CUSTOMIZATION
 
@@ -266,6 +289,11 @@ or your application config.
     # or
     
     MyApp->config( 'Controller::HTML::FormFu' => \%my_values );
+    
+    # or, in myapp.yml
+    
+    ---
+    'Controller::HTML::FormFu': {  }
 
 =head2 form_method
 
@@ -343,15 +371,28 @@ Default value: C<{}>.
 Arguments: bool
 
 If true, a coderef is passed to C<< $form->config_callback->{plain_value} >> 
-which replaces any instance of C<__uri_for(URI)__> found in form config 
-files with the result of passing the C<URI> argument to L<Catalyst/uri_for>.
+which replaces any instance of C<__uri_for(URI)__> found in form config files
+with the result of passing the C<URI> argument to L<Catalyst/uri_for>.
 
 The form C<< __uri_for(URI, PATH, PARTS)__ >> is also supported, which is 
 equivalent to C<< $c->uri_for( 'URI', \@ARGS ) >>. At this time, there is no 
 way to pass query values equivalent to 
-C<< $c->uri_for( 'URI', \@ARGS, \%QUERY_VALUES ) >>. 
+C<< $c->uri_for( 'URI', \@ARGS, \%QUERY_VALUES ) >>.
+
+The second codeword that is being replaced is C<__path_to( @DIRS )__>. Any
+instance is replaced with the result of passing the C<DIRS> arguments to
+L<Catalyst/path_to>.
+Don't use qoutationmarks as they would become part of the path.
+
 
 Default value: 1
+
+=head2 config_file_path
+
+Location of the form config files, used when creating a form with the 
+C<FormConfig> action controller.
+
+Default Value: C<< $c->path_to( 'root', 'forms' ) >>
 
 =head2 config_file_ext
 
@@ -410,6 +451,19 @@ then setting L</languages_from_context>
 If you're using a L10N / I18N plugin such as L<Catalyst::Plugin::I18N> which 
 provides it's own C<localize> method, you can set L<localize_from_context> to 
 use that method for formfu's localization.
+
+=head1 CAVEATS
+
+When using the C<Form> action attribute to create an empty form, you must 
+call L<< $form->process|HTML::FormFu/process >> after populating the form.
+However, you don't need to pass any arguments to C<process>, as the 
+Catalyst request object will have automatically been set in 
+L<< $form->query|HTML::FormFu/query >>.
+
+When using the C<FormConfig> and C<FormMethod> action attributes, if you 
+make any modifications to the form, such as adding or changing it's 
+elements, you must call L<< $form->process|HTML::FormFu/process >> before 
+rendering the form.
 
 =head1 SEE ALSO
 
