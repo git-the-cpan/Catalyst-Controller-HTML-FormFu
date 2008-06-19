@@ -1,4 +1,4 @@
-package Catalyst::Controller::HTML::FormFu::Action::Config;
+package Catalyst::Controller::HTML::FormFu::Action::MultiFormConfig;
 
 use strict;
 use warnings;
@@ -15,9 +15,9 @@ sub execute {
 
     return $self->NEXT::execute(@_)
       unless exists $self->attributes->{ActionClass}
-      && $self->attributes->{ActionClass}[0] eq $config->{config_action};
+      && $self->attributes->{ActionClass}[0] eq $config->{multiform_config_action};
 
-    my $form  = $controller->_form;
+    my $multi = $controller->_multiform;
     my @files = grep {length} split /\s+/, $self->{_attr_params}->[0] || '';
     
     if ( !@files ) {
@@ -32,12 +32,12 @@ sub execute {
         $c->log->debug( __PACKAGE__ ." searching for file '$filepath'" )
             if $c->debug;
         
-        $form->load_config_file( $filepath );
+        $multi->load_config_file( $filepath );
     }
     
-    $form->process( $c->request );
+    $multi->process( $c->request );
     
-    $c->stash->{ $config->{form_stash} } = $form;
+    $c->stash->{ $config->{multiform_stash} } = $multi;
     
     $self->NEXT::execute(@_);
 }

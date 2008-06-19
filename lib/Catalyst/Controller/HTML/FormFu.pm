@@ -5,10 +5,11 @@ use warnings;
 use base qw( Catalyst::Controller Class::Accessor::Fast );
 
 use HTML::FormFu;
+eval "use HTML::FormFu::MultiForm"; # ignore errors
 use Scalar::Util qw/ weaken /;
 use Carp qw/ croak /;
 
-our $VERSION = '0.02000';
+our $VERSION = '0.03000';
 $VERSION = eval $VERSION;  # see L<perlmodstyle>
 
 __PACKAGE__->mk_accessors(qw( _html_formfu_config ));
@@ -33,20 +34,35 @@ sub _setup {
     my $self = shift;
     my ($c)  = @_;
 
-    my $self_config = $self->config->{'Controller::HTML::FormFu'} || {};
+    my $self_config   = $self->config->{'Controller::HTML::FormFu'} || {};
     my $parent_config = $c->config->{'Controller::HTML::FormFu'} || {};
 
     my %defaults = (
         form_method   => 'form',
         form_stash    => 'form',
-        context_stash => 'context',
         form_attr     => 'Form',
         config_attr   => 'FormConfig',
         method_attr   => 'FormMethod',
         form_action   => "Catalyst::Controller::HTML::FormFu::Action::Form",
-        config_action => "Catalyst::Controller::HTML::FormFu::Action::Config",
-        method_action => "Catalyst::Controller::HTML::FormFu::Action::Method",
-        constructor   => {},
+        config_action => "Catalyst::Controller::HTML::FormFu::Action::FormConfig",
+        method_action => "Catalyst::Controller::HTML::FormFu::Action::FormMethod",
+        
+        multiform_method        => 'multiform',
+        multiform_stash         => 'multiform',
+        multiform_attr          => 'MultiForm',
+        multiform_config_attr   => 'MultiFormConfig',
+        multiform_method_attr   => 'MultiFormMethod',
+        multiform_action        => "Catalyst::Controller::HTML::FormFu::Action::MultiForm",
+        multiform_config_action => "Catalyst::Controller::HTML::FormFu::Action::MultiFormConfig",
+        multiform_method_action => "Catalyst::Controller::HTML::FormFu::Action::MultiFormMethod",
+        
+        context_stash => 'context',
+        
+        model_stash => {},
+        
+        constructor           => {},
+        multiform_constructor => {},
+        
         config_callback  => 1,
         config_file_ext  => '.yml',
         config_file_path => $c->path_to( 'root', 'forms' ),
@@ -67,9 +83,10 @@ sub _setup {
     
     $self->_html_formfu_config( \%args );
     
-    my $form_method = $args{form_method};
+    # add controller methods
     no strict 'refs';
-    *{"$form_method"} = \&_form;
+    *{"$args{form_method}"}      = \&_form;
+    *{"$args{multiform_method}"} = \&_multiform;
 }
 
 sub _form {
@@ -79,6 +96,30 @@ sub _form {
         %{ $self->_html_formfu_config->{constructor} },
         ( @_ ? %{ $_[0] } : () ),
     });
+    
+    $self->_common_construction( $form );
+    
+    return $form;
+}
+
+sub _multiform {
+    my $self = shift;
+    
+    my $multi = HTML::FormFu::MultiForm->new({
+        %{ $self->_html_formfu_config->{constructor} },
+        %{ $self->_html_formfu_config->{multiform_constructor} },
+        ( @_ ? %{ $_[0] } : () ),
+    });
+    
+    $self->_common_construction( $multi );
+    
+    return $multi;
+}
+
+sub _common_construction {
+    my ( $self, $form ) = @_;
+    
+    croak "form or multi arg required" if !defined $form;
     
     my $config = $self->_html_formfu_config;
     
@@ -127,8 +168,14 @@ sub _form {
     my $context_stash = $config->{context_stash};
     $form->stash->{$context_stash} = $self->{c};
     weaken( $form->stash->{$context_stash} );
-    
-    return $form;
+
+    my $model_stash = $config->{model_stash};
+
+    for my $model ( keys %$model_stash ) {
+        $form->stash->{$model} = $self->{c}->model( $model_stash->{$model} );
+    }
+
+    return;
 }
 
 sub create_action {
@@ -137,7 +184,14 @@ sub create_action {
 
     my $config = $self->_html_formfu_config;
 
-    for my $type (qw/ form config method /) {
+    for my $type (qw/ 
+        form
+        config
+        method
+        multiform
+        multiform_config
+        multiform_method /)
+    {
         my $attr = $config->{"${type}_attr"};
         
         if ( exists $args{attributes}{$attr} ) {
@@ -171,14 +225,23 @@ Catalyst::Controller::HTML::FormFu
     
     use base 'Catalyst::Controller::HTML::FormFu';
     
+    sub index : Local {
+        my ( $self, $c ) = @_;
+        
+        # doesn't use an Attribute to make a form
+        # can get an empty form from $self->form()
+        
+        my $form = $self->form();
+    }
+    
     sub foo : Local : Form {
         my ( $self, $c ) = @_;
         
         # using the Form attribute is equivalent to:
         #
-        # my $form = HTML::FormFu->new;
+        # my $form = $self->form;
         #
-        # $form->query( $c->request );
+        # $form->process;
         # 
         # $c->stash->{form} = $form;
     }
@@ -188,11 +251,11 @@ Catalyst::Controller::HTML::FormFu
         
         # using the FormConfig attribute is equivalent to:
         #
-        # my $form = HTML::FormFu->new;
+        # my $form = $self->form;
         #
         # $form->load_config_file('root/forms/my/controller/bar.yml');
         #
-        # $form->process( $c->request );
+        # $form->process;
         #
         # $c->stash->{form} = $form;
         #
@@ -200,7 +263,7 @@ Catalyst::Controller::HTML::FormFu
         
         my $form = $c->stash->{form};
         
-        if ( $form->submitted && !$form->has_errors ) {
+        if ( $form->submitted_and_valid ) {
             do_something();
         }
     }
@@ -210,11 +273,11 @@ Catalyst::Controller::HTML::FormFu
         
         # using the FormConfig attribute with an argument is equivalent to:
         #
-        # my $form = HTML::FormFu->new;
+        # my $form = $self->form;
         #
         # $form->load_config_file('root/forms/my_config.yml');
         #
-        # $form->process( $c->request );
+        # $form->process;
         #
         # $c->stash->{form} = $form;
         #
@@ -222,7 +285,7 @@ Catalyst::Controller::HTML::FormFu
         
         my $form = $c->stash->{form};
         
-        if ( $form->submitted && !$form->has_errors ) {
+        if ( $form->submitted_and_valid ) {
             do_something();
         }
     }
@@ -232,11 +295,11 @@ Catalyst::Controller::HTML::FormFu
         
         # using the FormConfig attribute with an argument is equivalent to:
         #
-        # my $form = HTML::FormFu->new;
+        # my $form = $self->form;
         #
         # $form->populate( $c->load_form );
         #
-        # $form->process( $c->request );
+        # $form->process;
         #
         # $c->stash->{form} = $form;
         #
@@ -244,7 +307,7 @@ Catalyst::Controller::HTML::FormFu
         
         my $form = $c->stash->{form};
         
-        if ( $form->submitted && !$form->has_errors ) {
+        if ( $form->submitted_and_valid ) {
             do_something();
         }
     }
@@ -384,7 +447,6 @@ instance is replaced with the result of passing the C<DIRS> arguments to
 L<Catalyst/path_to>.
 Don't use qoutationmarks as they would become part of the path.
 
-
 Default value: 1
 
 =head2 config_file_path
@@ -427,6 +489,21 @@ default_action_use_name => 1 leads to
 
 default_action_use_path => 1 leads to
     $form->action = /foo/bar/1
+
+=haed2 model_stash
+
+Arguments: \%stash_keys_to_model_names
+
+Used to place Catalyst models on the form stash.
+
+If it's being used to make a L<DBIx::Class> schema available for
+L<HTML::FormFu::Model::DBIC/options_from_model>, for C<Select> and other
+Group-type elements - then the hash-key must be C<schema>. For example, if
+your schema model class is C<MyApp::Model::MySchema>, you would set
+C<model_stash> like so:
+
+    model_stash:
+      schema: MySchema
 
 =head2 context_stash
 
