@@ -4,10 +4,12 @@ name 'Catalyst-Controller-HTML-FormFu';
 all_from 'lib/Catalyst/Controller/HTML/FormFu.pm';
 
 requires 'Catalyst::Runtime' => '5.70';
+requires 'Catalyst::Component::InstancePerContext';
 requires 'Config::Any';
 requires 'File::Spec';
 requires 'HTML::FormFu' => '0.03000';
 requires 'NEXT';
+requires 'Regexp::Assemble';
 requires 'Scalar::Util';
 requires 'Task::Weaken'; # to ensure Scalar::Util was built with weaken()
 

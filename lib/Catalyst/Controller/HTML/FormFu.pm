@@ -2,22 +2,28 @@ package Catalyst::Controller::HTML::FormFu;
 
 use strict;
 use warnings;
-use base qw( Catalyst::Controller Class::Accessor::Fast );
+use Moose  qw( extends with );
+extends 'Catalyst::Controller', 'Class::Accessor::Fast';
+with 'Catalyst::Component::InstancePerContext';
 
 use HTML::FormFu;
 eval "use HTML::FormFu::MultiForm"; # ignore errors
+use Config::Any;
+use Regexp::Assemble;
 use Scalar::Util qw/ weaken /;
 use Carp qw/ croak /;
 
-our $VERSION = '0.03000';
+our $VERSION = '0.03004';
 $VERSION = eval $VERSION;  # see L<perlmodstyle>
 
 __PACKAGE__->mk_accessors(qw( _html_formfu_config ));
 
-sub ACCEPT_CONTEXT {
+sub build_per_context_instance {
     my ( $self, $c ) = @_;
     
-    return bless { %$self, c => $c }, ref($self);
+    $self->{c} = $c;
+    
+    return $self;
 }
 
 sub new {
@@ -31,11 +37,10 @@ sub new {
 }
 
 sub _setup {
-    my $self = shift;
-    my ($c)  = @_;
+    my ( $self, $app ) = @_;
 
     my $self_config   = $self->config->{'Controller::HTML::FormFu'} || {};
-    my $parent_config = $c->config->{'Controller::HTML::FormFu'} || {};
+    my $parent_config = $app->config->{'Controller::HTML::FormFu'} || {};
 
     my %defaults = (
         form_method   => 'form',
@@ -64,13 +69,12 @@ sub _setup {
         multiform_constructor => {},
         
         config_callback  => 1,
-        config_file_ext  => '.yml',
-        config_file_path => $c->path_to( 'root', 'forms' ),
+        config_file_path => $app->path_to( 'root', 'forms' ),
     );
     
     my %args = ( %defaults, %$parent_config, %$self_config );
     
-    my $local_path = $c->path_to('root','formfu');
+    my $local_path = $app->path_to('root','formfu');
     
     if ( !exists $args{constructor}{tt_args}
         || !exists $args{constructor}{tt_args}{INCLUDE_PATH}
@@ -81,6 +85,14 @@ sub _setup {
     
     $args{constructor}{query_type} ||= 'Catalyst';
     
+    # build regexp of file extensions
+    my $regex_builder = Regexp::Assemble->new;
+    
+    map { $regex_builder->add($_) } Config::Any->extensions;
+    
+    $args{_file_ext_regex} = $regex_builder->re;
+    
+    # save config for use by action classes
     $self->_html_formfu_config( \%args );
     
     # add controller methods
@@ -121,7 +133,17 @@ sub _common_construction {
     
     croak "form or multi arg required" if !defined $form;
     
+    $form->query( $self->{c}->request );
+    
     my $config = $self->_html_formfu_config;
+    
+    if ( exists $config->{config_file_ext} ) {
+        warn <<WARNING;
+Configuration setting 'config_file_ext' has been removed.
+We now use Config::Any's load_stems() which automatically finds files with
+known file extensions.
+WARNING
+    }
     
     if ( $config->{config_callback} ) {
             $form->config_callback({
@@ -131,6 +153,8 @@ sub _common_construction {
                      { $self->{c}->uri_for( split( '\s*,\s*', $1 ) ) }eg;
                     s{__path_to\(\s*(.+?)\s*\)__}
                      { $self->{c}->path_to( split( '\s*,\s*', $1 ) ) }eg;
+                    s{__config\((.+?)\)__}
+                     { $self->{c}->config->{$1}  }eg;
                 }
             });
             
@@ -253,7 +277,7 @@ Catalyst::Controller::HTML::FormFu
         #
         # my $form = $self->form;
         #
-        # $form->load_config_file('root/forms/my/controller/bar.yml');
+        # $form->load_config_filestem('root/forms/my/controller/bar');
         #
         # $form->process;
         #
@@ -275,7 +299,7 @@ Catalyst::Controller::HTML::FormFu
         #
         # my $form = $self->form;
         #
-        # $form->load_config_file('root/forms/my_config.yml');
+        # $form->load_config_filestem('root/forms/my_config');
         #
         # $form->process;
         #
@@ -353,10 +377,11 @@ or your application config.
     
     MyApp->config( 'Controller::HTML::FormFu' => \%my_values );
     
-    # or, in myapp.yml
+    # or, in myapp.conf
     
-    ---
-    'Controller::HTML::FormFu': {  }
+    <Controller::HTML::FormFu>
+        default_action_use_path 1
+    </Controller::HTML::FormFu>
 
 =head2 form_method
 
@@ -456,14 +481,6 @@ C<FormConfig> action controller.
 
 Default Value: C<< $c->path_to( 'root', 'forms' ) >>
 
-=head2 config_file_ext
-
-Set the default file extension used by the Config() action attribute. This 
-setting is appended to both explicit config filenames, and auto-generated 
-filenames.
-
-Default value: C<.yml>.
-
 =head2 default_action_use_name
 
 If set to a true value the action for the form will be set to the currently 
@@ -481,13 +498,14 @@ were code inside the path.
 Default value: C<false>.
 
 Example:
+
     action: /foo/bar
     called uri contains: /foo/bar/1
-
-default_action_use_name => 1 leads to
+    
+    # default_action_use_name => 1 leads to:
     $form->action = /foo/bar
-
-default_action_use_path => 1 leads to
+    
+    # default_action_use_path => 1 leads to:
     $form->action = /foo/bar/1
 
 =haed2 model_stash
@@ -502,8 +520,11 @@ Group-type elements - then the hash-key must be C<schema>. For example, if
 your schema model class is C<MyApp::Model::MySchema>, you would set
 C<model_stash> like so:
 
-    model_stash:
-      schema: MySchema
+    <Controller::HTML::FormFu>
+        <model_stash>
+            schema MySchema
+        </model_stash>
+    </Controller::HTML::FormFu>
 
 =head2 context_stash
 
@@ -528,6 +549,13 @@ then setting L</languages_from_context>
 If you're using a L10N / I18N plugin such as L<Catalyst::Plugin::I18N> which 
 provides it's own C<localize> method, you can set L<localize_from_context> to 
 use that method for formfu's localization.
+
+=head1 DEPRECATED CONFIG SETTINGS
+
+=head2 config_file_ext
+
+This is now unnecessary, and has been removed. Config files are now searched
+for, with any file extension supported by Config::Any.
 
 =head1 CAVEATS
 

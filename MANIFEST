@@ -23,6 +23,7 @@ MANIFEST			This list of files
 META.yml
 t/01basic-form.t
 t/01basic-formconfig.t
+t/01basic-formconfig_conf_ext.t
 t/01basic-formmethod.t
 t/btn_120x50_built.png
 t/btn_88x31_built.png
@@ -33,6 +34,7 @@ t/lib/TestApp/Controller/Root.pm
 t/lib/TestApp/View/TT.pm
 t/root/form.tt
 t/root/forms/basic/formconfig.yml
+t/root/forms/basic/formconfig_conf_ext.conf
 t/root/forms/multiform/file_upload.yml
 t/root/forms/multiform/formconfig.yml
 t/root/multiform.tt
