@@ -25,11 +25,12 @@ requires:
   Catalyst::Runtime: 5.70
   Config::Any: 0
   File::Spec: 0
-  HTML::FormFu: 0.03000
+  HTML::FormFu: 0.03004
+  Moose: 0
   NEXT: 0
   Regexp::Assemble: 0
   Scalar::Util: 0
   Task::Weaken: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.03004
+version: 0.03006
