@@ -1,11 +1,8 @@
 Changes
-inc/Module/AutoInstall.pm
 inc/Module/Install.pm
-inc/Module/Install/AutoInstall.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
-inc/Module/Install/Include.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
@@ -25,6 +22,8 @@ t/01basic-form.t
 t/01basic-formconfig.t
 t/01basic-formconfig_conf_ext.t
 t/01basic-formmethod.t
+t/02multiform-multiformconfig.t
+t/02multiform-multiformmethod.t
 t/btn_120x50_built.png
 t/btn_88x31_built.png
 t/lib/TestApp.pm
