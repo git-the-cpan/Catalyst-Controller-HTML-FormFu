@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More skip_all => "no multi form support yet";
 
 use lib 't/lib';
 use Test::WWW::Mechanize::Catalyst 'TestApp';
@@ -10,7 +10,7 @@ my $mech = Test::WWW::Mechanize::Catalyst->new;
 
 # check the initial response
 
-$mech->get_ok('http://localhost/multiform/formconfig');
+$mech->get_ok('http://localhost/multiformtoken/formconfig');
 
 my ($form) = $mech->forms;
 

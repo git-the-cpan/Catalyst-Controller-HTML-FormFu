@@ -15,6 +15,9 @@ lib/Catalyst/Controller/HTML/FormFu/Action/MultiForm.pm
 lib/Catalyst/Controller/HTML/FormFu/Action/MultiFormConfig.pm
 lib/Catalyst/Controller/HTML/FormFu/Action/MultiFormMethod.pm
 lib/Catalyst/Helper/HTML/FormFu.pm
+lib/HTML/FormFu/Constraint/RequestToken.pm
+lib/HTML/FormFu/Element/RequestToken.pm
+lib/HTML/FormFu/Plugin/RequestToken.pm
 Makefile.PL
 MANIFEST			This list of files
 META.yml
@@ -22,14 +25,19 @@ t/01basic-form.t
 t/01basic-formconfig.t
 t/01basic-formconfig_conf_ext.t
 t/01basic-formmethod.t
+t/01basic-token.t
 t/02multiform-multiformconfig.t
 t/02multiform-multiformmethod.t
+t/02multiform-token.t
 t/btn_120x50_built.png
 t/btn_88x31_built.png
 t/lib/TestApp.pm
 t/lib/TestApp/Controller/Basic.pm
 t/lib/TestApp/Controller/MultiForm.pm
+t/lib/TestApp/Controller/MultiFormToken.pm
 t/lib/TestApp/Controller/Root.pm
+t/lib/TestApp/Controller/Token.pm
+t/lib/TestApp/Controller/TokenExpire.pm
 t/lib/TestApp/View/TT.pm
 t/root/form.tt
 t/root/forms/basic/formconfig.yml
