@@ -5,6 +5,9 @@ author:
 build_requires:
   Catalyst::Action::RenderView: 0
   Catalyst::Plugin::ConfigLoader: 0.23
+  Catalyst::Plugin::Session: 0
+  Catalyst::Plugin::Session::State::Cookie: 0
+  Catalyst::Plugin::Session::Store::File: 0
   Catalyst::View::TT: 0
   Config::General: 0
   ExtUtils::MakeMaker: 6.42
@@ -37,4 +40,4 @@ requires:
   Task::Weaken: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.04002
+version: 0.04003
