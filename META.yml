@@ -29,7 +29,7 @@ no_index:
     - t
 requires:
   Catalyst::Component::InstancePerContext: 0
-  Catalyst::Runtime: 5.70
+  Catalyst::Runtime: 5.71001
   Config::Any: 0
   File::Spec: 0
   HTML::FormFu: 0.04001
@@ -38,6 +38,7 @@ requires:
   Regexp::Assemble: 0
   Scalar::Util: 0
   Task::Weaken: 0
+  namespace::autoclean: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.04003
+version: 0.05000
