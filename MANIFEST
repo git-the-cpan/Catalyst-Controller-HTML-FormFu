@@ -14,6 +14,7 @@ lib/Catalyst/Controller/HTML/FormFu/Action/FormMethod.pm
 lib/Catalyst/Controller/HTML/FormFu/Action/MultiForm.pm
 lib/Catalyst/Controller/HTML/FormFu/Action/MultiFormConfig.pm
 lib/Catalyst/Controller/HTML/FormFu/Action/MultiFormMethod.pm
+lib/Catalyst/Controller/HTML/FormFu/ActionBase/Form.pm
 lib/Catalyst/Helper/HTML/FormFu.pm
 lib/HTML/FormFu/Constraint/RequestToken.pm
 lib/HTML/FormFu/Element/RequestToken.pm
@@ -31,6 +32,8 @@ t/02multiform-multiformmethod.t
 t/02multiform-token.t
 t/btn_120x50_built.png
 t/btn_88x31_built.png
+t/elements/requesttoken.t
+t/elements/requesttoken.yml
 t/lib/TestApp.pm
 t/lib/TestApp/Controller/Basic.pm
 t/lib/TestApp/Controller/MultiForm.pm
