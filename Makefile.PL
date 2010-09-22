@@ -7,8 +7,11 @@ if ( -e 'MANIFEST.SKIP' ) {
 name 'Catalyst-Controller-HTML-FormFu';
 all_from 'lib/Catalyst/Controller/HTML/FormFu.pm';
 
+repository 'http://html-formfu.googlecode.com/svn/trunk/Catalyst-Controller-HTML-FormFu';
+
 requires 'Catalyst::Runtime' => '5.71001';
 requires 'Catalyst::Component::InstancePerContext';
+requires 'Class::C3';
 requires 'Config::Any';
 requires 'File::Spec';
 requires 'HTML::FormFu' => '0.04001';
@@ -29,6 +32,7 @@ test_requires 'Config::General';
 test_requires 'Template';
 test_requires 'Test::WWW::Mechanize::Catalyst';
 test_requires 'Test::WWW::Mechanize' => '1.16'; # post_ok came in 1.16
+test_requires 'Test::More' => '0.92'; # done_testing
 
 license 'perl';
 

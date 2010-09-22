@@ -14,7 +14,7 @@ use namespace::autoclean;
 extends 'Catalyst::Controller';
 with 'Catalyst::Component::InstancePerContext';
 
-our $VERSION = '0.06001';
+our $VERSION = '0.08002';
 $VERSION = eval $VERSION;              # see L<perlmodstyle>
 
 has _html_formfu_config => ( is => 'rw' );
@@ -86,18 +86,6 @@ after BUILD => sub {
 
     $args{constructor}{query_type} ||= 'Catalyst';
 
-    # handle config_file_path
-    if ( exists $args{config_file_path} ) {
-        warn <<'DEPRECATED';
-config_file_path configuration setting is deprecated,
-use $config->{constructor}{config_file_path} instead.
-DEPRECATED
-
-        my $path = delete $args{config_file_path};
-
-        $args{constructor}{config_file_path} = $path;
-    }
-
     if ( !exists $args{constructor}{config_file_path} ) {
         $args{constructor}{config_file_path} = $app->path_to( 'root', 'forms' );
     }
@@ -163,24 +151,21 @@ sub _common_construction {
 
     my $config = $self->_html_formfu_config;
 
-    if ( exists $config->{config_file_ext} ) {
-        warn <<WARNING;
-Configuration setting 'config_file_ext' has been removed.
-We now use Config::Any's load_stems() which automatically finds files with
-known file extensions.
-WARNING
-    }
-
     if ( $config->{config_callback} ) {
         $form->config_callback( {
                 plain_value => sub {
                     return if !defined $_;
                     s{__uri_for\((.+?)\)__}
-                     { $self->{c}->uri_for( split( '\s*,\s*', $1 ) ) }eg;
+                     { $self->{c}->uri_for( split( '\s*,\s*', $1 ) ) }eg
+                        if /__uri_for\(/;
+                    
                     s{__path_to\(\s*(.+?)\s*\)__}
-                     { $self->{c}->path_to( split( '\s*,\s*', $1 ) ) }eg;
+                     { $self->{c}->path_to( split( '\s*,\s*', $1 ) ) }eg
+                        if /__path_to\(/;
+                    
                     s{__config\((.+?)\)__}
-                     { $self->{c}->config->{$1}  }eg;
+                     { $self->{c}->config->{$1}  }eg
+                        if /__config\(/;
                     }
             } );
 
@@ -625,13 +610,6 @@ Don't use qoutationmarks as they would become part of the path.
 
 Default value: 1
 
-=head2 config_file_path
-
-Location of the form config files, used when creating a form with the 
-C<FormConfig> action controller.
-
-Default Value: C<< $c->path_to( 'root', 'forms' ) >>
-
 =head2 default_action_use_name
 
 If set to a true value the action for the form will be set to the currently 
@@ -718,12 +696,17 @@ Defaults to C<__token>.
 
 Defaults to C<3600>.
 
-=head1 DEPRECATED CONFIG SETTINGS
+=head1 DISCONTINUED CONFIG SETTINGS
 
 =head2 config_file_ext
 
-This is now unnecessary, and has been removed. Config files are now searched
+Support for this has now been removed. Config files are now searched
 for, with any file extension supported by Config::Any.
+
+=head2 config_file_path
+
+Support for this has now been removed.
+Use C<< {constructor}{config_file_path} >> instead.
 
 =head1 CAVEATS
 

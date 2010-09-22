@@ -12,12 +12,13 @@ build_requires:
   Config::General: 0
   ExtUtils::MakeMaker: 6.42
   Template: 0
+  Test::More: 0.92
   Test::WWW::Mechanize: 1.16
   Test::WWW::Mechanize::Catalyst: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.91'
+generated_by: 'Module::Install version 1.00'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -30,6 +31,7 @@ no_index:
 requires:
   Catalyst::Component::InstancePerContext: 0
   Catalyst::Runtime: 5.71001
+  Class::C3: 0
   Config::Any: 0
   File::Spec: 0
   HTML::FormFu: 0.04001
@@ -41,4 +43,5 @@ requires:
   namespace::autoclean: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.06001
+  repository: http://html-formfu.googlecode.com/svn/trunk/Catalyst-Controller-HTML-FormFu
+version: 0.08002

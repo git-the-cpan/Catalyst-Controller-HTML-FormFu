@@ -338,12 +338,6 @@ CUSTOMIZATION
 
     Default value: 1
 
-  config_file_path
-    Location of the form config files, used when creating a form with the
-    "FormConfig" action controller.
-
-    Default Value: "$c->path_to( 'root', 'forms' )"
-
   default_action_use_name
     If set to a true value the action for the form will be set to the
     currently called action name.
@@ -421,10 +415,14 @@ CUSTOMIZATION
   request_token_expiration_time
     Defaults to 3600.
 
-DEPRECATED CONFIG SETTINGS
+DISCONTINUED CONFIG SETTINGS
   config_file_ext
-    This is now unnecessary, and has been removed. Config files are now
-    searched for, with any file extension supported by Config::Any.
+    Support for this has now been removed. Config files are now searched
+    for, with any file extension supported by Config::Any.
+
+  config_file_path
+    Support for this has now been removed. Use
+    "{constructor}{config_file_path}" instead.
 
 CAVEATS
     When using the "Form" action attribute to create an empty form, you must
