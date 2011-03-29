@@ -11,10 +11,14 @@ use MRO::Compat;
 
 use namespace::autoclean;
 
-extends 'Catalyst::Controller';
+# see https://rt.cpan.org/Ticket/Display.html?id=55780
+BEGIN {
+    extends 'Catalyst::Controller';
+}
+
 with 'Catalyst::Component::InstancePerContext';
 
-our $VERSION = '0.08002';
+our $VERSION = '0.09000';
 $VERSION = eval $VERSION;              # see L<perlmodstyle>
 
 has _html_formfu_config => ( is => 'rw' );
@@ -23,6 +27,9 @@ sub build_per_context_instance {
     my ( $self, $c ) = @_;
 
     $self->{c} = $c;
+    
+    weaken( $self->{c} )
+        if !isweak( $self->{c} );
 
     return $self;
 }
