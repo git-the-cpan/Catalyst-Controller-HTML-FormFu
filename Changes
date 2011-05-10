@@ -1,3 +1,8 @@
+0.09001 2011-05-10
+
+    - fixed problem with build_per_context_instance that caused errors
+      like http://paste.scsys.co.uk/102966
+
 0.09000 2011-03-29
 
     - Fix mem leak

@@ -434,6 +434,13 @@ CAVEATS
     make any modifications to the form, such as adding or changing it's
     elements, you must call $form->process before rendering the form.
 
+GITHUB REPOSITORY
+    This module's sourcecode is maintained in a git repository at
+    <git://github.com/fireartist/Catalyst-Controller-HTML-FormFu.git>
+
+    The project page is
+    <https://github.com/fireartist/Catalyst-Controller-HTML-FormFu>
+
 SEE ALSO
     HTML::FormFu, Catalyst::Helper::HTML::FormFu
 

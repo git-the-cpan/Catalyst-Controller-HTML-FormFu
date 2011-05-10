@@ -43,5 +43,5 @@ requires:
   namespace::autoclean: 0
 resources:
   license: http://dev.perl.org/licenses/
-  repository: http://html-formfu.googlecode.com/svn/trunk/Catalyst-Controller-HTML-FormFu
-version: 0.09000
+  repository: git://github.com/fireartist/Catalyst-Controller-HTML-FormFu.git
+version: 0.09001

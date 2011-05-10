@@ -18,14 +18,14 @@ BEGIN {
 
 with 'Catalyst::Component::InstancePerContext';
 
-our $VERSION = '0.09000';
+our $VERSION = '0.09001';
 $VERSION = eval $VERSION;              # see L<perlmodstyle>
 
 has _html_formfu_config => ( is => 'rw' );
 
 sub build_per_context_instance {
     my ( $self, $c ) = @_;
-
+    return $self unless(ref $c);
     $self->{c} = $c;
     
     weaken( $self->{c} )
@@ -727,6 +727,13 @@ When using the C<FormConfig> and C<FormMethod> action attributes, if you
 make any modifications to the form, such as adding or changing it's 
 elements, you must call L<< $form->process|HTML::FormFu/process >> before 
 rendering the form.
+
+=head1 GITHUB REPOSITORY
+
+This module's sourcecode is maintained in a git repository at
+L<git://github.com/fireartist/Catalyst-Controller-HTML-FormFu.git>
+
+The project page is L<https://github.com/fireartist/Catalyst-Controller-HTML-FormFu>
 
 =head1 SEE ALSO
 

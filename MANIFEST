@@ -31,6 +31,7 @@ t/01basic-token.t
 t/02multiform-multiformconfig.t
 t/02multiform-multiformmethod.t
 t/02multiform-token.t
+t/03instancepercontext.t
 t/btn_120x50_built.png
 t/btn_88x31_built.png
 t/elements/requesttoken.t
