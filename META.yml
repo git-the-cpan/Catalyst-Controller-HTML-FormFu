@@ -31,17 +31,18 @@ no_index:
 requires:
   Catalyst::Component::InstancePerContext: 0
   Catalyst::Runtime: 5.71001
-  Class::C3: 0
   Config::Any: 0
   File::Spec: 0
   HTML::FormFu: 0.04001
   MRO::Compat: 0.10
   Moose: 0
+  MooseX::ChainedAccessors: 0.02
   Regexp::Assemble: 0
   Scalar::Util: 0
   Task::Weaken: 0
   namespace::autoclean: 0
 resources:
+  bugtracker: https://github.com/fireartist/Catalyst-Controller-HTML-FormFu/issues
   license: http://dev.perl.org/licenses/
   repository: git://github.com/fireartist/Catalyst-Controller-HTML-FormFu.git
-version: 0.09001
+version: 0.09002
