@@ -33,8 +33,7 @@ requires:
   Catalyst::Runtime: 5.71001
   Config::Any: 0
   File::Spec: 0
-  HTML::FormFu: 0.04001
-  MRO::Compat: 0.10
+  HTML::FormFu: 0.09
   Moose: 0
   MooseX::ChainedAccessors: 0.02
   Regexp::Assemble: 0
@@ -45,4 +44,4 @@ resources:
   bugtracker: https://github.com/fireartist/Catalyst-Controller-HTML-FormFu/issues
   license: http://dev.perl.org/licenses/
   repository: git://github.com/fireartist/Catalyst-Controller-HTML-FormFu.git
-version: 0.09002
+version: 0.09003
