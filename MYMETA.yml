@@ -16,10 +16,9 @@ build_requires:
   Test::WWW::Mechanize: 1.16
   Test::WWW::Mechanize::Catalyst: 0
 configure_requires:
-  ExtUtils::MakeMaker: 6.36
-distribution_type: module
-dynamic_config: 1
-generated_by: 'Module::Install version 1.06'
+  ExtUtils::MakeMaker: 0
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -27,8 +26,8 @@ meta-spec:
 name: Catalyst-Controller-HTML-FormFu
 no_index:
   directory:
-    - inc
     - t
+    - inc
 requires:
   Catalyst::Component::InstancePerContext: 0
   Catalyst::Runtime: 5.71001
@@ -36,13 +35,9 @@ requires:
   File::Spec: 0
   HTML::FormFu: 0.09007
   Moose: 0
-  MooseX::Attribute::Chained: 1.0.1
+  MooseX::Attribute::Chained: v1.0.1
   Regexp::Assemble: 0
   Scalar::Util: 0
   Task::Weaken: 0
   namespace::autoclean: 0
-resources:
-  bugtracker: https://github.com/fireartist/Catalyst-Controller-HTML-FormFu/issues
-  license: http://dev.perl.org/licenses/
-  repository: git://github.com/fireartist/Catalyst-Controller-HTML-FormFu.git
 version: 0.09004
