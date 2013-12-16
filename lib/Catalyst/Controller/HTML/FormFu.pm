@@ -1,13 +1,14 @@
 package Catalyst::Controller::HTML::FormFu;
+{
+  $Catalyst::Controller::HTML::FormFu::VERSION = '1.00';
+}
 use Moose;
 
 use HTML::FormFu;
-use HTML::FormFu::MultiForm;
 use Config::Any;
 use Regexp::Assemble;
 use Scalar::Util qw/ isweak weaken /;
 use Carp qw/ croak /;
-use MRO::Compat;
 
 use namespace::autoclean;
 
@@ -17,9 +18,6 @@ BEGIN {
 }
 
 with 'Catalyst::Component::InstancePerContext';
-
-our $VERSION = '0.09004';
-$VERSION = eval $VERSION;              # see L<perlmodstyle>
 
 has _html_formfu_config => ( is => 'rw' );
 
@@ -137,6 +135,8 @@ sub _form {
 
 sub _multiform {
     my $self = shift;
+
+    require HTML::FormFu::MultiForm;
 
     my $multi = HTML::FormFu::MultiForm->new( {
             %{ $self->_html_formfu_config->{constructor} },

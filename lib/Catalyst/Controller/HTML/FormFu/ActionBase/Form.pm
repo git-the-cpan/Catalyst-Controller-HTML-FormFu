@@ -1,4 +1,7 @@
 package Catalyst::Controller::HTML::FormFu::ActionBase::Form;
+{
+  $Catalyst::Controller::HTML::FormFu::ActionBase::Form::VERSION = '1.00';
+}
 
 use strict;
 use warnings;

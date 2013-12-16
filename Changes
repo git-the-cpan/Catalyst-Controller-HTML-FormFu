@@ -1,3 +1,9 @@
+1.00 2013-12-16
+
+    - Updated for HTML-FormFu v1.00
+    
+    - Only require MultiForm at runtime when needed
+
 0.09004 2012-09-11
 
     - switch from MooseX::ChainedAccessors to MooseX::Attribute::Chained

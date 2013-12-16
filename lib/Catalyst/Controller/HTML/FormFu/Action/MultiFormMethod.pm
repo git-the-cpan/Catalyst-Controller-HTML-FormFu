@@ -1,10 +1,12 @@
 package Catalyst::Controller::HTML::FormFu::Action::MultiFormMethod;
+{
+  $Catalyst::Controller::HTML::FormFu::Action::MultiFormMethod::VERSION = '1.00';
+}
 
 use strict;
 use warnings;
 use base qw( Catalyst::Controller::HTML::FormFu::ActionBase::Form );
 
-use MRO::Compat;
 use Carp qw( croak );
 
 sub execute {

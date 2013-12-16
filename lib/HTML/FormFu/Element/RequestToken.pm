@@ -1,4 +1,7 @@
 package HTML::FormFu::Element::RequestToken;
+{
+  $HTML::FormFu::Element::RequestToken::VERSION = '1.00';
+}
 use Moose;
 use MooseX::Attribute::Chained;
 

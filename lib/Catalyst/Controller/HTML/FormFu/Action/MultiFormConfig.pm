@@ -1,11 +1,13 @@
 package Catalyst::Controller::HTML::FormFu::Action::MultiFormConfig;
+{
+  $Catalyst::Controller::HTML::FormFu::Action::MultiFormConfig::VERSION = '1.00';
+}
 
 use strict;
 use warnings;
 use base qw( Catalyst::Controller::HTML::FormFu::ActionBase::Form );
 
 use Config::Any;
-use MRO::Compat;
 
 sub execute {
     my $self = shift;

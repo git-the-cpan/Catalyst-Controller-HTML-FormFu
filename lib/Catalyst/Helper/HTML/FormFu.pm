@@ -1,4 +1,7 @@
 package Catalyst::Helper::HTML::FormFu;
+{
+  $Catalyst::Helper::HTML::FormFu::VERSION = '1.00';
+}
 
 use strict;
 use warnings;
